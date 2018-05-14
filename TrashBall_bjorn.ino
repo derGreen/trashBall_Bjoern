@@ -1,9 +1,15 @@
+//-------------------------------------------------------
+// Arduino Uno board
+// Peeper on pin 4, PIR Sensor on Pin 7
+// two 8x8 LED matrix with MAX7219 on Pin 12,10,11 for DIN,CLK,CS
+// LedCOntrol Library hafe to be installed
+//-------------------------------------------------------
+
 #include "LedControl.h"
 
-#define SUMMER 4    // Pin for Summer
-#define SENSOR 7 
-#define PAUSE 500
-
+#define SUMMER 4    // Pin for Summer Output
+#define SENSOR 7    // PIR pin Input
+#define DELAY 500   // not in use...
 
 LedControl lc = LedControl(12, 10, 11, 2); // Pins: DIN,CLK,CS, # of Display connected
 
@@ -143,16 +149,31 @@ void setup() {
   lc.clearDisplay(1);
 
 }
+int score = 0;
+bool checkDone = LOW;
 
 void loop() {
   // put your main code here, to run repeatedly:
-  int score = 0;
+//  int score = 0;    // initalisierun der variablen evtl. vor die setup routine ?
+//  bool pirState = false;
+  val = digitalRead(SENSOR);  // read input value
 
-  bool wert = digitalRead(SENSOR); // sensor lesen 
-  while(wert == HIGH){            // wen sensor 1 dan punkte um eins erhören. 
-    score++;
-    showNum(score);   // punkte anzeigen
+  if (val == HIGH) {            // check if the input is HIGH
+    if (checkDone == LOW) {
+      Peep;   // Ton
+      score++;
+      showNum(score);   // show score
+      checkDone = HIGH;
     }
+  } else {
+    if (checkDone == HIGH){
+      checkDone = LOW;
+    }
+  }
+  if (score >= 99)
+  {
+    score = 0;
+  }
 }
 
 void peep() {
@@ -267,3 +288,49 @@ void show(int pos, byte picture[])
     lc.setRow(pos, i, picture[i]);
   }
 }
+// ---------------------------------- old code ----------------
+/*  Adafruit Methode
+
+int score = 0;
+int pirState = LOW;
+int val = 0;
+
+void loop(){
+  val = digitalRead(inputPin);  // read input value
+
+  if (val == HIGH) {            // check if the input is HIGH
+    if (pirState == LOW) {
+          score++
+      pirState = HIGH;
+    }
+  } else {
+    if (pirState == HIGH){
+      pirState = LOW;
+    }
+  }
+}
+
+ */
+
+/* My Methode
+
+while(true){
+  if(digitalRead(SENSOR) == HIGH & checkDone == LOW) // reading the data from the pir sensor
+    {
+    checkDone = true
+    Peep;   // Ton
+    score++;
+    showNum(score);   // punkte anzeigen
+    }
+
+    else if (digitalRead(SENSOR) == LOW & checkDone == true)
+    {
+      checkDone = false
+    }
+    if (score >= 99)
+    {
+      score = 0;
+    }
+  }
+
+ */
